@@ -1,0 +1,5 @@
+# Project exclude paths
+/Flink/apiTest/target/
+/Flink/shop_demo/target/
+/MapReduce/target/
+/Spark/target/
