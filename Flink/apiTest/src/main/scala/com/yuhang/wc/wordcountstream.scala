@@ -1,7 +1,7 @@
 package com.yuhang.wc
 
 import org.apache.flink.api.java.utils.ParameterTool
-import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
+import org.apache.flink.streaming.api.scala._
 
 /**
  * @author yyh
@@ -19,13 +19,14 @@ object wordcountstream {
         //    env.disableOperatorChaining()
 
         // 从外部命令中提取参数，作为socket主机名和端口号
-        val paramTool: ParameterTool = ParameterTool.fromArgs(args)
-        val host: String = paramTool.get("host")
-        val port: Int = paramTool.getInt("port")
+//        val paramTool: ParameterTool = ParameterTool.fromArgs(args)
+//        val host: String = paramTool.get("host")
+//        val port: Int = paramTool.getInt("port")
 
         // 接收一个socket文本流
-        val inputDataStream: DataStream[String] = env.socketTextStream(host, port)
+        val inputDataStream: DataStream[String] = env.socketTextStream("192.168.117.100",9999)
         // 进行转化处理统计
+        //
         val resultDataStream: DataStream[(String, Int)] = inputDataStream
             .flatMap(_.split(" "))
             .filter(_.nonEmpty)

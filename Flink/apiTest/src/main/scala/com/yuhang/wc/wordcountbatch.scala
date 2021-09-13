@@ -1,6 +1,6 @@
 package com.yuhang.wc
 
-import org.apache.flink.api.scala.{AggregateDataSet, DataSet, ExecutionEnvironment}
+import org.apache.flink.api.scala._
 
 /**
  * @author yyh
@@ -15,7 +15,7 @@ object wordcountbatch {
         val env: ExecutionEnvironment = ExecutionEnvironment.getExecutionEnvironment
 
         // 从文件中读取数据
-        val inputPath: String = "E:\\IDEA2019\\BigData-Framework\\Flink\\apiTest\\src\\main\\resources\\hello.txt"
+        val inputPath: String = "D:\\Utils\\IDEA project\\BigData-Framework\\Flink\\apiTest\\src\\main\\resources\\hello.txt"
 
         val inputDataSet: DataSet[String] = env.readTextFile(inputPath)
 
@@ -28,6 +28,7 @@ object wordcountbatch {
 
         // 打印输出
         resultDataSet.print();
+
     }
 
 }
