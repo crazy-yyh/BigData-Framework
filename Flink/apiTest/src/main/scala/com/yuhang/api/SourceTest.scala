@@ -28,7 +28,7 @@ object SourceTest {
 //    val stream1 = env.fromCollection(dataList);
 
     //从文件读取数据
-//    val inputPath = "D:\\Utils\\IDEA project\\BigData-Framework\\Flink\\apiTest\\src\\main\\resources\\sensor.txt"
+//    val inputPath = "..\\BigData-Framework\\Flink\\apiTest\\src\\main\\resources\\sensor.txt"
 //    val stream1 = env.readTextFile(inputPath)
 
     //从kafka中读取数据

@@ -28,11 +28,11 @@ object wordcountstream {
         // 进行转化处理统计
         //
         val resultDataStream: DataStream[(String, Int)] = inputDataStream
-            .flatMap(_.split(" "))
-            .filter(_.nonEmpty)
-            .map((_, 1))
-            .keyBy(0)
-            .sum(1)
+                .flatMap(_.split(" "))
+                .filter(_.nonEmpty)
+                .map((_,1))
+                .keyBy(0)
+                .sum(1)
 
         resultDataStream.print().setParallelism(1)
 

@@ -12,7 +12,7 @@ object TransformTest {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     env.setParallelism(1)
     // 0.读取数据
-    val inputPath = "D:\\Utils\\IDEA project\\BigData-Framework\\Flink\\apiTest\\src\\main\\resources\\sensor.txt"
+    val inputPath = "..\\BigData-Framework\\Flink\\apiTest\\src\\main\\resources\\sensor.txt"
 
     val inputData = env.readTextFile(inputPath)
 
@@ -40,14 +40,21 @@ object TransformTest {
 
     // 4. 多流转换操作
     // 4.1 分流，将传感器温度数据分成低温、高温两条流
-    dataStream
-      .keyBy("id")
-        .split(data =>{
-          if(data.temperature > 30.0) Seq("hight") else Seq("low")
+    val splitStream: SplitStream[SensorReading] = dataStream
+        .keyBy("id")
+        .split(data => {
+          if (data.temperature > 30.0) Seq("hight") else Seq("low")
         })
 
+    val hightStream: DataStream[SensorReading] = splitStream.select("hight")
+    val lowStream: DataStream[SensorReading] = splitStream.select("low")
+    val allStream: DataStream[SensorReading] = splitStream.select("hight", "low")
 
-    resultStream.print()
+
+    hightStream.print("hight")
+//    lowStream.print()
+
+    allStream.print("all")
 
     env.execute("transform test")
 
