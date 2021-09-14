@@ -1,7 +1,7 @@
 package com.yuhang.api
 
 import com.yuhang.api.SourceTest.SensorReading
-import org.apache.flink.api.common.functions.ReduceFunction
+import org.apache.flink.api.common.functions.{ReduceFunction, RichMapFunction}
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.scala._
 
@@ -50,11 +50,28 @@ object TransformTest {
     val lowStream: DataStream[SensorReading] = splitStream.select("low")
     val allStream: DataStream[SensorReading] = splitStream.select("hight", "low")
 
+//    hightStream.print("hight")
+//    lowStream.print("low")
+//    allStream.print("all")
 
-    hightStream.print("hight")
-//    lowStream.print()
+    // 4.2 合流，connect
+    val warningStream: DataStream[(String, Double)] = hightStream.map(data => (data.id, data.temperature))
+    val connectedStreams: ConnectedStreams[(String, Double), SensorReading] = warningStream.connect(lowStream)
 
-    allStream.print("all")
+    // 用coMap对数据进行分别处理
+    val coMapResultStream: DataStream[Product] = connectedStreams.map(
+      waringData => (waringData._1, waringData._2, "warning"),
+      lowTempData => (lowTempData.id, "healthy")
+    )
+
+    // 4.3 union合流
+    val unionStream = hightStream.union(lowStream, allStream)
+
+    unionStream.print()
+
+
+
+
 
     env.execute("transform test")
 
@@ -70,3 +87,4 @@ class MyReduceFunction extends ReduceFunction[SensorReading]{
     SensorReading(curData.id,newData.timestamp,curData.temperature.min(newData.temperature))
   }
 }
+
