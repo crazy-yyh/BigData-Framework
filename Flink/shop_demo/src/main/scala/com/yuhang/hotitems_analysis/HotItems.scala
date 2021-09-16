@@ -24,7 +24,7 @@ import scala.collection.mutable.ListBuffer
 case class UserBehavior(userId: Long,itemId: Long,categoryId: Int, behavior: String,timestamp: Long)
 
 // 定义窗口聚合结果样例类
-case class ItemViewCount(itemId: Long,windowEnd: Long,count: Long)
+case class ItemViewCount(itemId: Long, windowEnd: Long,count: Long)
 
 
 object HotItems {
@@ -33,7 +33,8 @@ object HotItems {
         val env = StreamExecutionEnvironment.getExecutionEnvironment;
 
         //设置并行度为1，避免数据乱序，因为是读取文件方式
-        env.setParallelism(1);
+        env.setParallelism(1)
+
         //定义事件时间语义
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
@@ -46,6 +47,10 @@ object HotItems {
                 //将数据包装成样例类,提取时间戳生成watermark
                 UserBehavior(arr(0).toLong,arr(1).toLong,arr(2).toInt,arr(3),arr(4).toLong)
             })
+            //乱序的
+//            .assignTimestampsAndWatermarks()
+
+            //已经是升序的
             .assignAscendingTimestamps(_.timestamp * 1000L)
 
 
@@ -73,12 +78,12 @@ object HotItems {
 /**
  * 自定义预聚合函数AggregateFunction,聚合状态就是当前商品的count值
  * Userbehavior : 输入数据类型
- * Long ： 聚合中间状态类型
- * Long : 输出结果类型
+ * Long ： 聚合中间状态类型,聚合状态就是当前商品的count值的类型
+ * Long : 输出结果类型，这个值会传递给下面函数windowFunction的input
  */
 class CountAgg() extends AggregateFunction[UserBehavior,Long,Long]{
 
-    //聚合状态初始值
+    //初始化聚合状态初始值
     override def createAccumulator(): Long = 0L
 
     //聚合结果+1
@@ -87,14 +92,15 @@ class CountAgg() extends AggregateFunction[UserBehavior,Long,Long]{
     //返回结果
     override def getResult(acc: Long): Long = acc
 
+    //这里没用到
     override def merge(acc: Long, acc1: Long): Long = acc + acc1
 }
 
 /**
- * 自定义窗口函数windowFunction,注意Tuple类型，看keyby内部
+ * 自定义窗口函数windowFunction,
  * Long  :  AggregateFunction的输出类型
  * ItemViewCount ： 返回结果类型
- * Tuple
+ * Tuple            注意Tuple类型，看keyby内部
  * TimeWindow
  */
 class ItemViewWindowResult() extends WindowFunction[Long,ItemViewCount,Tuple,TimeWindow]{
