@@ -21,7 +21,7 @@ import scala.collection.mutable.ListBuffer
  * @create 2021-08-25 15:27
  */
 // 定义输入数据样例类
-case class Userbehavior(userId: Long,itemId: Long,categoryId: Int, behavior: String,timestamp: Long)
+case class UserBehavior(userId: Long,itemId: Long,categoryId: Int, behavior: String,timestamp: Long)
 
 // 定义窗口聚合结果样例类
 case class ItemViewCount(itemId: Long,windowEnd: Long,count: Long)
@@ -37,14 +37,14 @@ object HotItems {
         //定义事件时间语义
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
-        val inputStream: DataStream[String] = env.readTextFile("E:\\IDEA2019\\BigData-Framework\\Flink\\shop_demo\\src\\main\\resources\\UserBehavior.csv")
+        val inputStream: DataStream[String] = env.readTextFile("..\\BigData-Framework\\Flink\\shop_demo\\src\\main\\resources\\UserBehavior.csv")
 
-        val dataStream: DataStream[Userbehavior] = inputStream
+        val dataStream: DataStream[UserBehavior] = inputStream
             .map(data => {
                 val arr: Array[String] = data.split(",")
 
                 //将数据包装成样例类,提取时间戳生成watermark
-                Userbehavior(arr(0).toLong,arr(1).toLong,arr(2).toInt,arr(3),arr(4).toLong)
+                UserBehavior(arr(0).toLong,arr(1).toLong,arr(2).toInt,arr(3),arr(4).toLong)
             })
             .assignAscendingTimestamps(_.timestamp * 1000L)
 
@@ -76,13 +76,13 @@ object HotItems {
  * Long ： 聚合中间状态类型
  * Long : 输出结果类型
  */
-class CountAgg() extends AggregateFunction[Userbehavior,Long,Long]{
+class CountAgg() extends AggregateFunction[UserBehavior,Long,Long]{
 
     //聚合状态初始值
     override def createAccumulator(): Long = 0L
 
     //聚合结果+1
-    override def add(in: Userbehavior, acc: Long): Long = acc + 1
+    override def add(in: UserBehavior, acc: Long): Long = acc + 1
 
     //返回结果
     override def getResult(acc: Long): Long = acc
