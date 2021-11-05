@@ -13,6 +13,7 @@
         <module>MapReduce</module>
         <module>Spark</module>
         <module>Flink</module>
+        <module>ES</module>
     </modules>
 
 
